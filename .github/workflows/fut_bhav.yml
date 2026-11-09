@@ -1,0 +1,29 @@
+name: Futures bhavcopy -> Supabase
+
+on:
+  schedule:
+    - cron: "30 13 * * 1-5"   # 19:00 IST, Mon-Fri
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "Start date YYYY-MM-DD (blank = today)"
+        required: false
+      end:
+        description: "End date YYYY-MM-DD (blank = same as start)"
+        required: false
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Run loader
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python fetch_fut_bhav.py ${{ github.event.inputs.start }} ${{ github.event.inputs.end }}
